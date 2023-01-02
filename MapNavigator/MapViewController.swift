@@ -22,11 +22,6 @@ class MapViewController: UIViewController,MKMapViewDelegate,CLLocationManagerDel
         
         // for asking the authentication from the user .
         locationManager.requestWhenInUseAuthorization()
-
-//        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-//        locationManager.distanceFilter = kCLDistanceFilterNone
-//        locationManager.startUpdatingLocation()
-        
         
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
@@ -39,19 +34,39 @@ class MapViewController: UIViewController,MKMapViewDelegate,CLLocationManagerDel
     
     // for getting location of the user(ie. source address) and destination adderss.
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-       
-        guard let loc1: CLLocationCoordinate2D = manager.location?.coordinate else { return }
         
-        let loc2 = CLLocationCoordinate2D.init(latitude: 38.897957, longitude: -77.036560)
-        showRouteOnTheMap(pickupCoordinate: loc1, destinationCoordinator: loc2)
+        guard let loc1: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        print(loc1)
+        
+        
+        // Default location of destination (White house USA).
+        let whiteHouseLocation = CLLocationCoordinate2D.init(latitude: 38.897957, longitude: -77.036560)
+        //40.730610 73.935242
+        //38.897957 77.036560
+        //40.759211 73.984638
+        showRouteOnTheMap(pickupCoordinate: loc1, destinationCoordinator: whiteHouseLocation)
+        
+        // making cllocation distance.
+        let coordinate₀ = CLLocation(latitude: loc1.latitude, longitude: loc1.longitude)
+        let coordinate₁ = CLLocation(latitude: whiteHouseLocation.latitude, longitude: whiteHouseLocation.longitude)
+        // finding distance between source and destination.
+        let distanceInMeters = coordinate₀.distance(from: coordinate₁)
+        print(distanceInMeters)
+        
+        if distanceInMeters < 100 {
+            let alert = UIAlertController(title: "Welcome!", message: "You have reached your destination", preferredStyle: UIAlertController.Style.alert)
+            let okButtonAction = UIAlertAction(title: "ok", style: UIAlertAction.Style.default, handler: nil)
+            alert.addAction(okButtonAction)
+            present(alert, animated: true)
+        }
     }
     
-    //for creating route
+    //For creating route on the map
     func showRouteOnTheMap(pickupCoordinate: CLLocationCoordinate2D, destinationCoordinator: CLLocationCoordinate2D) {
-        // creating or compute directions
+        // creating or computing directions
         let request = MKDirections.Request()
         
-        //for soure
+        //for initial(user/source)
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: pickupCoordinate, addressDictionary: nil))
         //for destination
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destinationCoordinator, addressDictionary: nil))
@@ -64,7 +79,7 @@ class MapViewController: UIViewController,MKMapViewDelegate,CLLocationManagerDel
         
         directions.calculate { [unowned self] response, error in
             if let error = error {
-             debugPrint(error)
+                debugPrint(error)
                 return
             }
             
@@ -85,12 +100,14 @@ class MapViewController: UIViewController,MKMapViewDelegate,CLLocationManagerDel
         }
         
     }
-    // this is use for display the locator line on the route.
+    
+    // This is use for disigning the locator line on the route.
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-         let renderer = MKPolylineRenderer(overlay: overlay)
-         renderer.strokeColor = UIColor.red
-         renderer.lineWidth = 5.0
-         return renderer
+        let renderer = MKPolylineRenderer(overlay: overlay)
+        renderer.strokeColor = UIColor.red
+        renderer.lineWidth = 3.0
+        return renderer
     }
     
 }
+

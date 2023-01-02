@@ -22,9 +22,10 @@ class MapViewController: UIViewController,MKMapViewDelegate,CLLocationManagerDel
         
         // for asking the authentication from the user .
         locationManager.requestWhenInUseAuthorization()
-        
+        locationManager.distanceFilter = 20
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
+            
             //for best accuracy
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
